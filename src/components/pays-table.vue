@@ -11,7 +11,7 @@
             </thead>
             <tbody>
                 <tr 
-                v-for="el in payments.slice(start,end)"
+                v-for="el in getPaymentList[`page${currentPage}`]"
                 :key="el.id"
                 >
                 <td>{{el.id}}</td>
@@ -22,63 +22,46 @@
             </tbody>
         </table>
         <div class="pagination">
-            <button @click="pagination(--currentPage)" :disabled="currentPage == 1"> &lt; </button>
+            <button @click="currentPage-=1" :disabled="currentPage == 1"> &lt; </button>
             <button 
-            v-for="n in pages" 
+            v-for="n in getPaymentListLength" 
             :key="n"
             :class="{ activePage: n == currentPage }" 
-            @click="pagination(n)"
+            @click="currentPage=n"
             >
             {{n}}
             </button>
-            <button @click="pagination(++currentPage)" :disabled="currentPage==pages"> &gt; </button>
+            <button @click="currentPage+=1" :disabled="currentPage==getPaymentListLength"> &gt; </button>
         </div>
         
     </div>
 </template>
 
 <script>
+import { mapActions,mapGetters } from "vuex";
+
+
+
 export default {
     name: 'paysTable',
-    props: {
-        payments: {
-            type: Array,
-            default: () => [{
-                date: '01.01.0000',
-                category: 'null',
-                value: 0
-            },
-            {
-                date: '01.01.0000',
-                category: 'null',
-                value: 0
-            },
-            {
-                date: '01.01.0000',
-                category: 'null',
-                value: 0
-            }]
-        }
-    },
     data() {
         return {
-            start: 0,
-            end: 5,
-            step: 5,
             currentPage: 1
         }
     },
     methods: {
-        pagination(page){
-            this.start = (page-1) * this.step;
-            this.end = this.start + this.step;
-            this.currentPage = page;
-        }
+        ...mapActions([
+            'setDefaultPayments'
+        ])
     },
     computed: {
-        pages(){
-            return Math.ceil(this.payments.length/this.step)
-        }
+        ...mapGetters([
+            'getPaymentList',
+            'getPaymentListLength'
+        ])
+    },
+    created(){
+        this.setDefaultPayments();
     }
 }
 </script>
